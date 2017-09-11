@@ -71,11 +71,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Images\calculator.png">
+    <EmbeddedResource Include="Images\express.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
+    </EmbeddedResource>
     <Content Include="Languages\en.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
