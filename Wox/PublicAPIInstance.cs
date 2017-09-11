@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
-using NHotkey;
-using NHotkey.Wpf;
 using Squirrel;
 using Wox.Core.Plugin;
 using Wox.Core.Resource;
-using Wox.Core.UserSettings;
 using Wox.Helper;
+using Wox.Infrastructure;
 using Wox.Infrastructure.Hotkey;
+using Wox.Infrastructure.Image;
 using Wox.Plugin;
 using Wox.ViewModel;
 
@@ -20,28 +18,18 @@ namespace Wox
 {
     public class PublicAPIInstance : IPublicAPI
     {
-        private readonly Settings _settings;
+        private readonly SettingWindowViewModel _settingsVM;
+        private readonly MainViewModel _mainVM;
 
         #region Constructor
 
-        public PublicAPIInstance(Settings settings, MainViewModel mainVM)
+        public PublicAPIInstance(SettingWindowViewModel settingsVM, MainViewModel mainVM)
         {
-            _settings = settings;
-            MainVM = mainVM;
-            //_settings = settings;
+            _settingsVM = settingsVM;
+            _mainVM = mainVM;
             GlobalHotkey.Instance.hookedKeyboardCallback += KListener_hookedKeyboardCallback;
             WebRequest.RegisterPrefix("data", new DataWebRequestFactory());
 
-        }
-
-        #endregion
-
-        #region Properties
-
-        public MainViewModel MainVM
-        {
-            get;
-            set;
         }
 
         #endregion
@@ -50,41 +38,46 @@ namespace Wox
 
         public void ChangeQuery(string query, bool requery = false)
         {
-            MainVM.QueryText = query;
-            MainVM.OnCursorMovedToEnd();
+            _mainVM.ChangeQueryText(query);
         }
 
         public void ChangeQueryText(string query, bool selectAll = false)
         {
-            MainVM.QueryText = query;
-            MainVM.OnTextBoxSelected();
+            _mainVM.ChangeQueryText(query);
         }
 
+        [Obsolete]
         public void CloseApp()
         {
-            //notifyIcon.Visible = false;
             Application.Current.MainWindow.Close();
         }
 
         public void RestarApp()
         {
-            HideWox();
+            _mainVM.MainWindowVisibility = Visibility.Hidden;
+
             // we must manually save
             // UpdateManager.RestartApp() will call Environment.Exit(0)
             // which will cause ungraceful exit
-            var vm = (MainViewModel) Application.Current.MainWindow.DataContext;
-            vm.Save();
+            _mainVM.Save();
+            _settingsVM.Save();
+            PluginManager.Save();
+            ImageLoader.Save();
+            Alphabet.Save();
+
             UpdateManager.RestartApp();
         }
 
+        [Obsolete]
         public void HideApp()
         {
-            HideWox();
+            _mainVM.MainWindowVisibility = Visibility.Hidden;
         }
 
+        [Obsolete]
         public void ShowApp()
         {
-            ShowWox();
+            _mainVM.MainWindowVisibility = Visibility.Visible;
         }
 
         public void ShowMsg(string title, string subTitle = "", string iconPath = "")
@@ -96,23 +89,22 @@ namespace Wox
             });
         }
 
-        public void OpenSettingDialog(string tabName = "general")
+        public void OpenSettingDialog()
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                SettingWindow sw = SingletonWindowOpener.Open<SettingWindow>(this, _settings);
-                sw.SwitchTo(tabName);
+                SettingWindow sw = SingletonWindowOpener.Open<SettingWindow>(this, _settingsVM);
             });
         }
 
         public void StartLoadingBar()
         {
-            MainVM.ProgressBarVisibility = Visibility.Visible;
+            _mainVM.ProgressBarVisibility = Visibility.Visible;
         }
 
         public void StopLoadingBar()
         {
-            MainVM.ProgressBarVisibility = Visibility.Collapsed;
+            _mainVM.ProgressBarVisibility = Visibility.Collapsed;
         }
 
         public void InstallPlugin(string path)
@@ -143,7 +135,7 @@ namespace Wox
             });
             Task.Run(() =>
             {
-                MainVM.UpdateResultView(results, plugin, query);
+                _mainVM.UpdateResultView(results, plugin, query);
             });
         }
 
@@ -158,17 +150,6 @@ namespace Wox
                 return GlobalKeyboardEvent((int)keyevent, vkcode, state);
             }
             return true;
-        }
-
-        private void HideWox()
-        {
-            MainVM.MainWindowVisibility = Visibility.Collapsed;
-        }
-
-        private void ShowWox(bool selectAll = true)
-        {
-            MainVM.MainWindowVisibility = Visibility.Visible;
-            MainVM.OnTextBoxSelected();
         }
         #endregion
     }

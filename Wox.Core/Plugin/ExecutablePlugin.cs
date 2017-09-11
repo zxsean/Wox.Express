@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using Wox.Core.UserSettings;
 using Wox.Plugin;
 
 namespace Wox.Core.Plugin
@@ -28,7 +27,6 @@ namespace Wox.Core.Plugin
             {
                 Method = "query",
                 Parameters = new object[] { query.Search },
-                HttpProxy = HttpProxy.Instance
             };
 
             _startInfo.Arguments = $"\"{request}\"";
@@ -39,6 +37,17 @@ namespace Wox.Core.Plugin
         protected override string ExecuteCallback(JsonRPCRequestModel rpcRequest)
         {
             _startInfo.Arguments = $"\"{rpcRequest}\"";
+            return Execute(_startInfo);
+        }
+
+        protected override string ExecuteContextMenu(Result selectedResult) {
+            JsonRPCServerRequestModel request = new JsonRPCServerRequestModel {
+                Method = "contextmenu",
+                Parameters = new object[] { selectedResult.ContextData },
+            };
+
+            _startInfo.Arguments = $"\"{request}\"";
+
             return Execute(_startInfo);
         }
     }

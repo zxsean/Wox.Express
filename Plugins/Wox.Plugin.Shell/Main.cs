@@ -3,36 +3,39 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Windows.Forms;
+using System.Windows;
 using WindowsInput;
 using WindowsInput.Native;
 using Wox.Infrastructure.Hotkey;
 using Wox.Infrastructure.Logger;
 using Wox.Infrastructure.Storage;
+using Application = System.Windows.Application;
 using Control = System.Windows.Controls.Control;
+using Keys = System.Windows.Forms.Keys;
 
-namespace Wox.Plugin.CMD
+namespace Wox.Plugin.Shell
 {
-    public class CMD : IPlugin, ISettingProvider, IPluginI18n, IContextMenu
+    public class Main : IPlugin, ISettingProvider, IPluginI18n, IContextMenu, ISavable
     {
         private const string Image = "Images/shell.png";
-        private PluginInitContext context;
-        private bool WinRStroked;
-        private readonly KeyboardSimulator keyboardSimulator = new KeyboardSimulator(new InputSimulator());
+        private PluginInitContext _context;
+        private bool _winRStroked;
+        private readonly KeyboardSimulator _keyboardSimulator = new KeyboardSimulator(new InputSimulator());
 
         private readonly Settings _settings;
         private readonly PluginJsonStorage<Settings> _storage;
 
-        public CMD()
+        public Main()
         {
             _storage = new PluginJsonStorage<Settings>();
             _settings = _storage.Load();
         }
 
-        ~CMD()
+        public void Save()
         {
             _storage.Save();
         }
+
 
         public List<Result> Query(Query query)
         {
@@ -88,7 +91,7 @@ namespace Wox.Plugin.CMD
                 }
                 catch (Exception e)
                 {
-                    Log.Exception(e);
+                    Log.Exception($"|Wox.Plugin.Shell.Main.Query|Exception when query for <{query}>", e);
                 }
                 return results;
             }
@@ -102,14 +105,14 @@ namespace Wox.Plugin.CMD
                 {
                     if (m.Key == cmd)
                     {
-                        result.SubTitle = string.Format(context.API.GetTranslation("wox_plugin_cmd_cmd_has_been_executed_times"), m.Value);
+                        result.SubTitle = string.Format(_context.API.GetTranslation("wox_plugin_cmd_cmd_has_been_executed_times"), m.Value);
                         return null;
                     }
 
                     var ret = new Result
                     {
                         Title = m.Key,
-                        SubTitle = string.Format(context.API.GetTranslation("wox_plugin_cmd_cmd_has_been_executed_times"), m.Value),
+                        SubTitle = string.Format(_context.API.GetTranslation("wox_plugin_cmd_cmd_has_been_executed_times"), m.Value),
                         IcoPath = Image,
                         Action = c =>
                         {
@@ -128,7 +131,7 @@ namespace Wox.Plugin.CMD
             {
                 Title = cmd,
                 Score = 5000,
-                SubTitle = context.API.GetTranslation("wox_plugin_cmd_execute_through_shell"),
+                SubTitle = _context.API.GetTranslation("wox_plugin_cmd_execute_through_shell"),
                 IcoPath = Image,
                 Action = c =>
                 {
@@ -146,7 +149,7 @@ namespace Wox.Plugin.CMD
                 .Select(m => new Result
                 {
                     Title = m.Key,
-                    SubTitle = string.Format(context.API.GetTranslation("wox_plugin_cmd_cmd_has_been_executed_times"), m.Value),
+                    SubTitle = string.Format(_context.API.GetTranslation("wox_plugin_cmd_cmd_has_been_executed_times"), m.Value),
                     IcoPath = Image,
                     Action = c =>
                     {
@@ -163,7 +166,7 @@ namespace Wox.Plugin.CMD
             command = Environment.ExpandEnvironmentVariables(command);
 
             ProcessStartInfo info;
-            if (_settings.Shell == Shell.CMD)
+            if (_settings.Shell == Shell.Cmd)
             {
                 var arguments = _settings.LeaveShellOpen ? $"/k \"{command}\"" : $"/c \"{command}\" & pause";
                 info = new ProcessStartInfo
@@ -191,7 +194,7 @@ namespace Wox.Plugin.CMD
             }
             else if (_settings.Shell == Shell.RunCommand)
             {
-                var parts = command.Split(new[] {' '}, 2);
+                var parts = command.Split(new[] { ' ' }, 2);
                 if (parts.Length == 2)
                 {
                     var filename = parts[0];
@@ -266,7 +269,7 @@ namespace Wox.Plugin.CMD
 
         public void Init(PluginInitContext context)
         {
-            this.context = context;
+            this._context = context;
             context.API.GlobalKeyboardEvent += API_GlobalKeyboardEvent;
         }
 
@@ -276,14 +279,14 @@ namespace Wox.Plugin.CMD
             {
                 if (keyevent == (int)KeyEvent.WM_KEYDOWN && vkcode == (int)Keys.R && state.WinPressed)
                 {
-                    WinRStroked = true;
+                    _winRStroked = true;
                     OnWinRPressed();
                     return false;
                 }
-                if (keyevent == (int)KeyEvent.WM_KEYUP && WinRStroked && vkcode == (int)Keys.LWin)
+                if (keyevent == (int)KeyEvent.WM_KEYUP && _winRStroked && vkcode == (int)Keys.LWin)
                 {
-                    WinRStroked = false;
-                    keyboardSimulator.ModifiedKeyStroke(VirtualKeyCode.LWIN, VirtualKeyCode.CONTROL);
+                    _winRStroked = false;
+                    _keyboardSimulator.ModifiedKeyStroke(VirtualKeyCode.LWIN, VirtualKeyCode.CONTROL);
                     return false;
                 }
             }
@@ -292,8 +295,8 @@ namespace Wox.Plugin.CMD
 
         private void OnWinRPressed()
         {
-            context.API.ShowApp();
-            context.API.ChangeQuery($"{context.CurrentPluginMetadata.ActionKeywords[0]}{Plugin.Query.TermSeperater}");
+            _context.API.ChangeQuery($"{_context.CurrentPluginMetadata.ActionKeywords[0]}{Plugin.Query.TermSeperater}");
+            Application.Current.MainWindow.Visibility = Visibility.Visible;
         }
 
         public Control CreateSettingPanel()
@@ -303,15 +306,13 @@ namespace Wox.Plugin.CMD
 
         public string GetTranslatedPluginTitle()
         {
-            return context.API.GetTranslation("wox_plugin_cmd_plugin_name");
+            return _context.API.GetTranslation("wox_plugin_cmd_plugin_name");
         }
 
         public string GetTranslatedPluginDescription()
         {
-            return context.API.GetTranslation("wox_plugin_cmd_plugin_description");
+            return _context.API.GetTranslation("wox_plugin_cmd_plugin_description");
         }
-
-        public bool IsInstantQuery(string query) => false;
 
         public List<Result> LoadContextMenus(Result selectedResult)
         {
@@ -319,10 +320,9 @@ namespace Wox.Plugin.CMD
             {
                         new Result
                         {
-                            Title = context.API.GetTranslation("wox_plugin_cmd_run_as_administrator"),
+                            Title = _context.API.GetTranslation("wox_plugin_cmd_run_as_administrator"),
                             Action = c =>
                             {
-                                context.API.HideApp();
                                 Execute(selectedResult.Title, true);
                                 return true;
                             },

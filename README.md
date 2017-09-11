@@ -1,10 +1,13 @@
+NOTE
+====
+This project will not be maintained by @happlebao for about 2 month due to personal reason.
+
 WoX
 ===
 
-[![Gitter](https://badges.gitter.im/Wox-launcher/Wox.svg)](https://gitter.im/Wox-launcher/Wox?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-[![Build status](https://ci.appveyor.com/api/projects/status/bfktntbivg32e103)](https://ci.appveyor.com/project/happlebao/wox)
+[![Build status](https://ci.appveyor.com/api/projects/status/bfktntbivg32e103?svg=true)](https://ci.appveyor.com/project/happlebao/wox)
 [![Github All Releases](https://img.shields.io/github/downloads/Wox-launcher/Wox/total.svg)](https://github.com/Wox-launcher/Wox/releases)
-[![Issue Stats](http://issuestats.com/github/Wox-launcher/Wox/badge/pr)](http://issuestats.com/github/Wox-launcher/Wox) 
+[![RamenBless](https://cdn.rawgit.com/LunaGao/BlessYourCodeTag/master/tags/ramen.svg)](https://github.com/LunaGao/BlessYourCodeTag)
 
 **WoX** is a launcher for Windows that simply works. It's an alternative to [Alfred](https://www.alfredapp.com/) and [Launchy](http://www.launchy.net/). You can call it Windows omni-eXecutor if you want a long name.
 
@@ -13,7 +16,7 @@ WoX
 Features
 --------
 
-- Search for everything—applications, folders, files and more.
+- Search for everything—applications, **uwp**, folders, files and more.
 - Use *pinyin* to search for programs / 支持用 **拼音** 搜索程序
   - yyy / wangyiyun → 网易云音乐
 - Keyword plugin search 
@@ -21,46 +24,46 @@ Features
 - Build custom themes at http://www.getwox.com/theme/builder
 - Install plugins from http://www.getwox.com/plugin
 
+
 Installation
 ------------
 
-Download [`setup.exe`](https://github.com/Wox-launcher/Wox/releases/download/latest/Setup.exe) from [releases](https://github.com/Wox-launcher/Wox/releases).
-Just ignore Windows' complaints about security, we will sign the code in the future.
+Download `Wox-xxx.exe` from [releases](https://github.com/Wox-launcher/Wox/releases). Latest as of now is [`1.3.183`](https://github.com/Wox-launcher/Wox/releases/download/v1.3.183/Wox-1.3.183.exe)
+
+Windows may complain about security due to code not being signed. This will be fixed later. 
 
 Versions marked as **pre-release** are unstable pre-release versions.
 
 - Requirements:
   - .net >= 4.5.2
-  - [everything](https://www.voidtools.com/): `.exe` installer + use x64 if your windows is x64
-  - [python3](https://www.python.org/downloads/): `.exe` installer
+  - [everything](https://www.voidtools.com/): `.exe` installer + use x64 if your windows is x64 + everything service is running
+  - [python3](https://www.python.org/downloads/): `.exe` installer + add it to `%PATH%` or set it in WoX settings
 
 Usage
 -----
 
 - Launch: <kbd>Alt</kbd>+<kbd>Space</kbd>
 - Install/Uninstall plugin: type `wpm install/uninstall`
+- Reset: delete `%APPDATA%\Wox`
+- Log: `%APPDATA%\Wox\Logs`
 
 Contribution
 ------------
 
 - First and most importantly, star it!
+- Read [Coding Style](https://github.com/Wox-launcher/Wox/wiki/Coding-Style)
 - Send PR to **dev** branch
 - I'd appreciate if you could solve [help_needed](https://github.com/Wox-launcher/Wox/issues?q=is%3Aopen+is%3Aissue+label%3Ahelp_needed) labeled issue
 - Don't hesitate to ask questions in the [issues](https://github.com/Wox-launcher/Wox/issues)
-- 中文开发直接发我邮件我们聊 QQ
+
+Build
+-----
+
+1. Install Visual Studio 2015 and tick all Windows 10 sdk options
+2. Open powershell with admin permission and `Set-ExecutionPolicy Unrestricted -Scope CurrentUser`
 
 Documentation
 -------------
-
-Outdated doc: [WoX doc](http://doc.getwox.com).
-
-Just ask questions in [issues](https://github.com/Wox-launcher/Wox/issues) for now.
-
-TODO
-----
-
-- [x] unified directory `%APPDATA%` for all storage
-- [ ] bring unitest for wox back
-- [x] add autoupdate / installer
-- [x] disable plugin properly
-
+- [Wiki](https://github.com/Wox-launcher/Wox/wiki)
+- Outdated doc: [WoX doc](http://doc.getwox.com).
+- Just ask questions in [issues](https://github.com/Wox-launcher/Wox/issues) for now.

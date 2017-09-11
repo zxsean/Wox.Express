@@ -11,6 +11,7 @@ class Wox(object):
 
     def __init__(self):
         rpc_request = json.loads(sys.argv[1])
+        # proxy is not working now
         self.proxy = rpc_request.get("proxy",{})
         request_method_name = rpc_request.get("method")
         request_parameters = rpc_request.get("parameters")
@@ -18,12 +19,19 @@ class Wox(object):
 
         request_method = dict(methods)[request_method_name]
         results = request_method(*request_parameters)
-        if request_method_name == "query":
+
+        if request_method_name == "query" or request_method_name == "context_menu":
             print(json.dumps({"result": results}))
 
     def query(self,query):
         """
         sub class need to override this method
+        """
+        return []
+
+    def context_menu(self, data):
+        """
+        optional context menu entries for a result
         """
         return []
 
