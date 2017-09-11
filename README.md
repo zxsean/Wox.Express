@@ -1,2 +1,0 @@
-# Wox.Express
-WoxPlugin.Express
