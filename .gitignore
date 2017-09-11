@@ -1,2 +1,2 @@
-/.vs/Wox.Plugin.Express/v14
-/obj/Debug
+/obj
+/Wox.Plugin.Express.csproj.user

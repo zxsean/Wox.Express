@@ -13,9 +13,9 @@ namespace Wox.Plugin.Express
 
         //private const string __KEYWORD = "kdcx";
 
-        private string m_keyword = "";
-
         private const string __TIPS = @"请输入快递缩写,例如顺丰:shunfeng+空格单号";
+
+        private const string __ICON = @"Images\\express.png";
 
         private PluginInitContext context { get; set; }
 
@@ -31,13 +31,7 @@ namespace Wox.Plugin.Express
             // 格式 key 快递 单号
             string[] _info = query.RawQuery.Split(' ');
 
-            // 需要查询的信息
-            //string[] _info = _str.Split(' ');
-
             List<Result> _list = new List<Result>();
-
-            // 判断快递名称
-            var _str = query.RawQuery.Substring(m_keyword.Length + 1);
 
             // 格式匹配
             if (_info.Length < 2)
@@ -46,7 +40,7 @@ namespace Wox.Plugin.Express
                 {
                     Title = __TIPS,
                     SubTitle = "",
-                    IcoPath = "txt",
+                    IcoPath = __ICON,
                     Score = 20,
                     Action = e =>
                     {
@@ -86,7 +80,7 @@ namespace Wox.Plugin.Express
                         {
                             Title = "查询:" + _i.Key + "_" + _i.Name,
                             SubTitle = "点击选取",
-                            IcoPath = "txt",
+                            IcoPath = __ICON,
                             Score = 20,
                             Action = e =>
                             {
@@ -116,7 +110,7 @@ namespace Wox.Plugin.Express
                         {
                             Title = "查询" + _expressName + "_单号:" + _order,
                             SubTitle = "点击开始查询",
-                            IcoPath = "txt",
+                            IcoPath = __ICON,
                             Score = 20,
                             Action = e =>
                             {
@@ -133,7 +127,7 @@ namespace Wox.Plugin.Express
                     {
                         Title = @"输入需要查询的单号",
                         SubTitle = "",
-                        IcoPath = "txt",
+                        IcoPath = __ICON,
                         Score = 20,
                         Action = e =>
                         {
@@ -218,7 +212,7 @@ namespace Wox.Plugin.Express
                     {
                         Title = "快递状态:" + _expressModel.Data.Info.GetStatus(),
                         SubTitle = "Copy this text to the clipboard",
-                        IcoPath = "txt",
+                        IcoPath = __ICON,
                         Score = 20,
                         Action = e =>
                         {
@@ -245,7 +239,7 @@ namespace Wox.Plugin.Express
                         {
                             Title = _data.Time() + "_" + _data.Desc,
                             SubTitle = "Copy this text to the clipboard",
-                            IcoPath = "txt",
+                            IcoPath = __ICON,
                             Score = 20,
                             Action = e =>
                             {
@@ -273,7 +267,7 @@ namespace Wox.Plugin.Express
                     {
                         Title = "查询出现了错误:" + _expressModel.Message,
                         SubTitle = "Copy this text to the clipboard",
-                        IcoPath = "txt",
+                        IcoPath = __ICON,
                         Score = 20,
                         Action = e =>
                         {
